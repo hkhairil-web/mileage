@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mileage">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Mileage</title>
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --text:#000000; --muted:#8e8e93;
+    --sep:rgba(60,60,67,.18); --blue:#007aff; --red:#ff3b30; --green:#34c759;
+    --fill:rgba(118,118,128,.12); --glass:rgba(249,249,249,.82);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#000000; --card:#1c1c1e; --text:#ffffff; --muted:#98989f;
+      --sep:rgba(84,84,88,.55); --blue:#0a84ff; --red:#ff453a; --green:#30d158;
+      --fill:rgba(118,118,128,.24); --glass:rgba(22,22,24,.82);
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:17px;line-height:1.3;-webkit-font-smoothing:antialiased;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  }
+  header{
+    position:sticky;top:0;z-index:10;
+    padding:calc(env(safe-area-inset-top) + 14px) 20px 8px;
+    background:var(--glass);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  }
+  #title{font-size:34px;font-weight:700;letter-spacing:-.4px;max-width:600px;margin:0 auto}
+  main{padding:8px 16px 16px;max-width:600px;margin:0 auto}
+
+  .section-title{
+    font-size:13px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);
+    padding:18px 16px 7px;
+  }
+  .group{background:var(--card);border-radius:12px;overflow:hidden}
+  .field{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:0 16px;min-height:48px;border-bottom:.5px solid var(--sep);
+  }
+  .field:last-child{border-bottom:0}
+  .field label{font-size:17px;color:var(--text);flex:0 0 38%}
+  .field input,.field select{
+    flex:1;min-width:0;border:0;background:transparent;outline:none;
+    text-align:right;font-size:17px;font-family:inherit;padding:13px 0;color:var(--blue);
+    -webkit-appearance:none;appearance:none;
+  }
+  .field input[type=text]{color:var(--text)}
+  .field input::placeholder{color:var(--muted);opacity:.7}
+  .field input[type=file]{font-size:14px;color:var(--muted)}
+  .foot{font-size:13px;color:var(--muted);padding:8px 16px 0}
+
+  .btn{
+    display:block;width:100%;margin-top:18px;border:0;border-radius:12px;
+    background:var(--blue);color:#fff;font-size:17px;font-weight:600;
+    font-family:inherit;padding:15px;
+  }
+  .btn:active{opacity:.7}
+  .btn.secondary{background:var(--fill);color:var(--blue)}
+  .link{background:none;border:0;padding:4px 0;font-size:15px;font-family:inherit;color:var(--blue);font-weight:500}
+  .link.red{color:var(--red)}
+  .link:active{opacity:.5}
+
+  .seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;margin:0 16px 0}
+  .seg button{
+    flex:1;border:0;background:transparent;color:var(--text);font-size:15px;font-weight:500;
+    font-family:inherit;padding:8px 4px;border-radius:7px;
+  }
+  .seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.18);font-weight:600}
+  .segwrap{padding:12px 0;border-bottom:.5px solid var(--sep)}
+
+  .item{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:12px 16px;border-bottom:.5px solid var(--sep);
+  }
+  .item:last-child{border-bottom:0}
+  .item .t{font-weight:600}
+  .item .s{font-size:14px;color:var(--muted);margin-top:2px}
+  .item .r{text-align:right;flex-shrink:0}
+  .amt{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .minus{color:var(--red)} .plus{color:var(--green)}
+  .empty{color:var(--muted);text-align:center;padding:22px 16px;font-size:15px}
+
+  .hero{background:var(--card);border-radius:16px;padding:20px 16px 8px}
+  .hero .lbl{font-size:13px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted)}
+  .hero .net{font-size:40px;font-weight:700;letter-spacing:-.8px;margin:2px 0 10px;font-variant-numeric:tabular-nums}
+  .row2{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:.5px solid var(--sep);font-variant-numeric:tabular-nums}
+  .row2 span:first-child{color:var(--text)}
+  .row2.strong{font-weight:600}
+
+  .wish{padding:14px 16px;border-bottom:.5px solid var(--sep)}
+  .wish:last-child{border-bottom:0}
+  .wish .top{display:flex;justify-content:space-between;gap:12px}
+  .wish .name{font-weight:600}
+  .wish .s{font-size:14px;color:var(--muted);margin-top:2px}
+  .wish.done .name{text-decoration:line-through;color:var(--muted)}
+  .prog{height:6px;background:var(--fill);border-radius:3px;overflow:hidden;margin:10px 0 6px}
+  .prog>div{height:100%;background:var(--blue);border-radius:3px}
+  .prog>div.ok{background:var(--green)}
+  .acts{display:flex;gap:20px}
+
+  nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;
+    background:var(--glass);border-top:.5px solid var(--sep);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  nav button{
+    flex:1;border:0;background:transparent;color:var(--muted);font-family:inherit;
+    font-size:10px;font-weight:500;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  nav button svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  nav button.on{color:var(--blue)}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<header><div id="title">Trips</div></header>
+<main>
+
+<!-- TRIPS TAB -->
+<section id="tab-trips">
+  <div class="section-title">New trip</div>
+  <div class="group">
+    <div class="field"><label for="t-date">Date</label><input type="date" id="t-date"></div>
+    <div class="field"><label for="t-from">From</label><input type="text" id="t-from" placeholder="Starting point"></div>
+    <div class="field"><label for="t-to">To</label><input type="text" id="t-to" placeholder="Destination"></div>
+    <div class="field"><label for="t-km">Distance (KM)</label><input type="number" id="t-km" inputmode="decimal" placeholder="0"></div>
+    <div class="field"><label for="t-rate">RM per KM</label><input type="number" id="t-rate" inputmode="decimal" step="0.01" placeholder="0.80"></div>
+    <div class="field"><label>Sub total</label><span class="amt" id="t-preview">RM 0.00</span></div>
+  </div>
+  <button class="btn" id="t-save">Save Trip</button>
+
+  <div class="section-title">This month</div>
+  <div class="group" id="t-list"></div>
+</section>
+
+<!-- COSTS TAB -->
+<section id="tab-costs" class="hide">
+  <div class="section-title">New cost</div>
+  <div class="group">
+    <div class="segwrap">
+      <div class="seg" id="c-seg">
+        <button type="button" data-v="petrol" class="on">Petrol</button>
+        <button type="button" data-v="service">Service car</button>
+      </div>
+      <input type="hidden" id="c-type" value="petrol">
+    </div>
+    <div class="field"><label for="c-date">Date</label><input type="date" id="c-date"></div>
+    <div class="field"><label for="c-amt">Amount (RM)</label><input type="number" id="c-amt" inputmode="decimal" placeholder="0.00"></div>
+    <div class="field"><label for="c-note">Note</label><input type="text" id="c-note" placeholder="Optional"></div>
+  </div>
+  <button class="btn" id="c-save">Save Cost</button>
+
+  <div class="section-title">This month</div>
+  <div class="group" id="c-list"></div>
+</section>
+
+<!-- SUMMARY TAB -->
+<section id="tab-sum" class="hide">
+  <div class="section-title">Month</div>
+  <div class="group">
+    <div class="field"><label for="s-month">Choose month</label><input type="month" id="s-month"></div>
+  </div>
+
+  <div class="section-title">Summary</div>
+  <div id="s-card"></div>
+
+  <div class="section-title">Settings</div>
+  <div class="group">
+    <div class="field"><label for="set-allow">Allowance per day (RM)</label><input type="number" id="set-allow" inputmode="decimal"></div>
+    <div class="field"><label for="set-rate">Usual RM per KM</label><input type="number" id="set-rate" inputmode="decimal" step="0.01"></div>
+  </div>
+  <div class="foot">A day for allowance is any different date that has at least one trip.</div>
+  <button class="btn" id="set-save">Save Settings</button>
+
+  <div class="section-title">Backup</div>
+  <div class="group">
+    <div class="field"><label for="b-import">Restore</label><input type="file" id="b-import" accept=".json"></div>
+  </div>
+  <button class="btn secondary" id="b-export">Download Backup File</button>
+</section>
+
+<!-- WISHLIST TAB -->
+<section id="tab-wish" class="hide">
+  <div class="section-title">Available to spend</div>
+  <div class="hero">
+    <div class="net" id="w-avail">RM 0.00</div>
+    <div class="foot" style="padding:0 0 12px">Total net from all months, minus items you marked as bought.</div>
+  </div>
+
+  <div class="section-title">New wish</div>
+  <div class="group">
+    <div class="field"><label for="w-name">Item</label><input type="text" id="w-name" placeholder="What do you want?"></div>
+    <div class="field"><label for="w-price">Price (RM)</label><input type="number" id="w-price" inputmode="decimal" placeholder="0.00"></div>
+  </div>
+  <button class="btn" id="w-save">Add to Wishlist</button>
+
+  <div class="section-title">My wishlist</div>
+  <div class="group" id="w-list"></div>
+</section>
+
+</main>
+
+<nav>
+  <button data-tab="trips" class="on">
+    <svg viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg>Trips
+  </button>
+  <button data-tab="costs">
+    <svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Costs
+  </button>
+  <button data-tab="sum">
+    <svg viewBox="0 0 24 24"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>Summary
+  </button>
+  <button data-tab="wish">
+    <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.4A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Wishlist
+  </button>
+</nav>
+
+<script>
+(function(){
+  var KEY = "mileage-app-v1";
+  var state = load();
+
+  function load(){
+    try{
+      var s = JSON.parse(localStorage.getItem(KEY));
+      if(s && s.trips){ return s; }
+    }catch(e){}
+    return {trips:[], costs:[], wish:[], settings:{allowance:45, rate:0.80}};
+  }
+  function save(){
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ alert("Could not save. Is your phone storage full?"); }
+  }
+  function $(id){ return document.getElementById(id); }
+  function esc(t){ return String(t==null?"":t).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function rm(n){ return "RM " + (Math.round(n*100)/100).toLocaleString("en-MY",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function today(){ var d=new Date(); var m=("0"+(d.getMonth()+1)).slice(-2), dd=("0"+d.getDate()).slice(-2); return d.getFullYear()+"-"+m+"-"+dd; }
+  function newId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+  function num(v){ var n=parseFloat(v); return isNaN(n)?0:n; }
+  function monthName(m){
+    var p=m.split("-"); var names=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    return (names[parseInt(p[1],10)-1]||m)+" "+p[0];
+  }
+
+  var currentMonth = today().slice(0,7);
+
+  // ----- calculations -----
+  function calc(month){
+    var trips = state.trips.filter(function(t){ return t.date.slice(0,7)===month; });
+    var costs = state.costs.filter(function(c){ return c.date.slice(0,7)===month; });
+    var sub=0, km=0, dates={};
+    trips.forEach(function(t){ sub+=t.km*t.rate; km+=t.km; dates[t.date]=1; });
+    var petrol=0, service=0;
+    costs.forEach(function(c){ if(c.type==="petrol") petrol+=c.amount; else service+=c.amount; });
+    var days = Object.keys(dates).length;
+    var allow = days * num(state.settings.allowance);
+    return {sub:sub, km:km, petrol:petrol, service:service, days:days, allow:allow, net: sub-petrol-service+allow};
+  }
+  function allTimeNet(){
+    var months={};
+    state.trips.forEach(function(t){ months[t.date.slice(0,7)]=1; });
+    state.costs.forEach(function(c){ months[c.date.slice(0,7)]=1; });
+    var total=0;
+    Object.keys(months).forEach(function(m){ total+=calc(m).net; });
+    var bought=0;
+    state.wish.forEach(function(w){ if(w.bought) bought+=w.price; });
+    return total-bought;
+  }
+
+  // ----- tabs -----
+  var tabs=["trips","costs","sum","wish"];
+  var titles={trips:"Trips",costs:"Costs",sum:"Summary",wish:"Wishlist"};
+  function showTab(name){
+    tabs.forEach(function(t){ $("tab-"+t).classList.toggle("hide", t!==name); });
+    document.querySelectorAll("nav button").forEach(function(b){
+      b.classList.toggle("on", b.getAttribute("data-tab")===name);
+    });
+    $("title").textContent = titles[name];
+    renderAll();
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll("nav button").forEach(function(b){
+    b.addEventListener("click", function(){ showTab(b.getAttribute("data-tab")); });
+  });
+
+  // ----- trips -----
+  function updatePreview(){ $("t-preview").textContent = rm(num($("t-km").value)*num($("t-rate").value)); }
+  $("t-km").addEventListener("input", updatePreview);
+  $("t-rate").addEventListener("input", updatePreview);
+
+  $("t-save").addEventListener("click", function(){
+    var km=num($("t-km").value), rate=num($("t-rate").value);
+    if(!$("t-date").value){ alert("Please pick a date."); return; }
+    if(km<=0){ alert("Please type the distance in KM."); return; }
+    if(rate<=0){ alert("Please type the RM per KM."); return; }
+    state.trips.push({id:newId(), date:$("t-date").value, from:$("t-from").value.trim(), to:$("t-to").value.trim(), km:km, rate:rate});
+    currentMonth = $("t-date").value.slice(0,7);
+    save();
+    $("t-from").value=""; $("t-to").value=""; $("t-km").value=""; updatePreview();
+    renderAll();
+  });
+
+  function renderTrips(){
+    var list = state.trips.filter(function(t){ return t.date.slice(0,7)===currentMonth; })
+      .sort(function(a,b){ return a.date<b.date?1:-1; });
+    var el=$("t-list");
+    if(!list.length){ el.innerHTML='<div class="empty">No trips in '+esc(monthName(currentMonth))+'.</div>'; return; }
+    el.innerHTML = list.map(function(t){
+      return '<div class="item"><div><div class="t">'+esc(t.from||"—")+' → '+esc(t.to||"—")+'</div>'+
+        '<div class="s">'+esc(t.date)+' · '+t.km+' KM × RM '+t.rate.toFixed(2)+'</div></div>'+
+        '<div class="r"><div class="amt">'+rm(t.km*t.rate)+'</div><button class="link red" data-del-trip="'+t.id+'">Delete</button></div></div>';
+    }).join("");
+  }
+
+  // ----- costs -----
+  document.querySelectorAll("#c-seg button").forEach(function(b){
+    b.addEventListener("click", function(){
+      $("c-type").value = b.getAttribute("data-v");
+      document.querySelectorAll("#c-seg button").forEach(function(x){ x.classList.toggle("on", x===b); });
+    });
+  });
+  $("c-save").addEventListener("click", function(){
+    var amt=num($("c-amt").value);
+    if(!$("c-date").value){ alert("Please pick a date."); return; }
+    if(amt<=0){ alert("Please type the amount."); return; }
+    state.costs.push({id:newId(), date:$("c-date").value, type:$("c-type").value, amount:amt, note:$("c-note").value.trim()});
+    currentMonth = $("c-date").value.slice(0,7);
+    save();
+    $("c-amt").value=""; $("c-note").value="";
+    renderAll();
+  });
+  function renderCosts(){
+    var list = state.costs.filter(function(c){ return c.date.slice(0,7)===currentMonth; })
+      .sort(function(a,b){ return a.date<b.date?1:-1; });
+    var el=$("c-list");
+    if(!list.length){ el.innerHTML='<div class="empty">No costs in '+esc(monthName(currentMonth))+'.</div>'; return; }
+    el.innerHTML = list.map(function(c){
+      return '<div class="item"><div><div class="t">'+(c.type==="petrol"?"Petrol":"Service car")+'</div>'+
+        '<div class="s">'+esc(c.date)+(c.note?" · "+esc(c.note):"")+'</div></div>'+
+        '<div class="r"><div class="amt minus">− '+rm(c.amount)+'</div><button class="link red" data-del-cost="'+c.id+'">Delete</button></div></div>';
+    }).join("");
+  }
+
+  // ----- summary -----
+  $("s-month").addEventListener("change", function(){
+    if(this.value){ currentMonth=this.value; renderAll(); }
+  });
+  function renderSummary(){
+    $("s-month").value=currentMonth;
+    var r=calc(currentMonth);
+    $("s-card").innerHTML =
+      '<div class="hero">'+
+        '<div class="lbl">Net total · '+esc(monthName(currentMonth))+'</div>'+
+        '<div class="net '+(r.net<0?"minus":"")+'">'+rm(r.net)+'</div>'+
+        '<div class="row2"><span>Total distance</span><span>'+r.km.toFixed(1)+' KM</span></div>'+
+        '<div class="row2 strong"><span>Sub total (mileage)</span><span>'+rm(r.sub)+'</span></div>'+
+        '<div class="row2"><span>Minus: Petrol</span><span class="minus">− '+rm(r.petrol)+'</span></div>'+
+        '<div class="row2"><span>Minus: Service car</span><span class="minus">− '+rm(r.service)+'</span></div>'+
+        '<div class="row2"><span>Plus: Allowance ('+r.days+' day'+(r.days===1?"":"s")+' × '+rm(num(state.settings.allowance))+')</span><span class="plus">+ '+rm(r.allow)+'</span></div>'+
+        '<div class="row2 strong"><span>Total (net)</span><span>'+rm(r.net)+'</span></div>'+
+      '</div>';
+    $("set-allow").value = state.settings.allowance;
+    $("set-rate").value = state.settings.rate;
+  }
+  $("set-save").addEventListener("click", function(){
+    state.settings.allowance = num($("set-allow").value);
+    state.settings.rate = num($("set-rate").value) || 0.80;
+    save(); renderAll(); alert("Settings saved.");
+  });
+
+  // ----- wishlist -----
+  $("w-save").addEventListener("click", function(){
+    var name=$("w-name").value.trim(), price=num($("w-price").value);
+    if(!name){ alert("Please type what you want to buy."); return; }
+    if(price<=0){ alert("Please type the price."); return; }
+    state.wish.push({id:newId(), name:name, price:price, bought:false});
+    save(); $("w-name").value=""; $("w-price").value=""; renderAll();
+  });
+  function renderWish(){
+    var avail=allTimeNet();
+    var a=$("w-avail");
+    a.textContent=rm(avail);
+    a.className="net "+(avail<0?"minus":"");
+    var el=$("w-list");
+    if(!state.wish.length){ el.innerHTML='<div class="empty">Your wishlist is empty.</div>'; return; }
+    var sorted = state.wish.slice().sort(function(x,y){ return (x.bought?1:0)-(y.bought?1:0); });
+    el.innerHTML = sorted.map(function(w){
+      if(w.bought){
+        return '<div class="wish done"><div class="top"><div><div class="name">'+esc(w.name)+'</div><div class="s">Bought</div></div><div class="amt">'+rm(w.price)+'</div></div>'+
+          '<div class="acts"><button class="link" data-unbuy="'+w.id+'">Undo</button><button class="link red" data-del-wish="'+w.id+'">Delete</button></div></div>';
+      }
+      var pct = Math.max(0, Math.min(100, avail/w.price*100));
+      var ok = avail>=w.price;
+      var msg = ok ? "You can afford this" : "Need "+rm(w.price-avail)+" more";
+      return '<div class="wish"><div class="top"><div><div class="name">'+esc(w.name)+'</div><div class="s">'+msg+'</div></div><div class="amt">'+rm(w.price)+'</div></div>'+
+        '<div class="prog"><div class="'+(ok?"ok":"")+'" style="width:'+pct+'%"></div></div>'+
+        '<div class="acts"><button class="link" data-buy="'+w.id+'">Mark as bought</button><button class="link red" data-del-wish="'+w.id+'">Delete</button></div></div>';
+    }).join("");
+  }
+
+  // ----- delete / buy buttons (one listener for the whole page) -----
+  document.addEventListener("click", function(e){
+    var b=e.target.closest("button"); if(!b) return;
+    var id;
+    if((id=b.getAttribute("data-del-trip"))){ if(confirm("Delete this trip?")){ state.trips=state.trips.filter(function(x){return x.id!==id;}); save(); renderAll(); } }
+    else if((id=b.getAttribute("data-del-cost"))){ if(confirm("Delete this cost?")){ state.costs=state.costs.filter(function(x){return x.id!==id;}); save(); renderAll(); } }
+    else if((id=b.getAttribute("data-del-wish"))){ if(confirm("Delete this item?")){ state.wish=state.wish.filter(function(x){return x.id!==id;}); save(); renderAll(); } }
+    else if((id=b.getAttribute("data-buy"))){ state.wish.forEach(function(w){ if(w.id===id) w.bought=true; }); save(); renderAll(); }
+    else if((id=b.getAttribute("data-unbuy"))){ state.wish.forEach(function(w){ if(w.id===id) w.bought=false; }); save(); renderAll(); }
+  });
+
+  // ----- backup -----
+  $("b-export").addEventListener("click", function(){
+    var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="mileage-backup-"+today()+".json"; document.body.appendChild(a); a.click(); a.remove();
+  });
+  $("b-import").addEventListener("change", function(){
+    var f=this.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(){
+      try{
+        var s=JSON.parse(r.result);
+        if(!s.trips||!s.costs||!s.wish||!s.settings) throw new Error("bad");
+        if(confirm("This will replace everything in the app with the backup. Continue?")){ state=s; save(); renderAll(); alert("Restored."); }
+      }catch(e){ alert("That file does not look like a backup from this app."); }
+    };
+    r.readAsText(f);
+  });
+
+  function renderAll(){
+    if(!$("t-rate").value) $("t-rate").value = state.settings.rate;
+    renderTrips(); renderCosts(); renderSummary(); renderWish(); updatePreview();
+  }
+
+  $("t-date").value=today(); $("c-date").value=today();
+  renderAll();
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+  }
+})();
+</script>
+</body>
+</html>
